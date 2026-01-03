@@ -1,0 +1,55 @@
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { Alert, Box, Card, CardContent, Grid, Typography } from "@mui/material";
+
+async function getStats() {
+  const r = await api.get<{ users: number; categories: number; requests: number; conversations: number }>("/admin/stats");
+  return r.data;
+}
+
+export function DashboardPage() {
+  const q = useQuery({ queryKey: ["admin-stats"], queryFn: getStats });
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {q.error ? <Alert severity="error">Statistikaları çəkmək olmadı</Alert> : null}
+
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={3}>
+          <Card><CardContent>
+            <Typography color="text.secondary">İstifadəçilər</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>{q.data?.users ?? "—"}</Typography>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card><CardContent>
+            <Typography color="text.secondary">Kateqoriyalar</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>{q.data?.categories ?? "—"}</Typography>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card><CardContent>
+            <Typography color="text.secondary">Sorğular</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>{q.data?.requests ?? "—"}</Typography>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card><CardContent>
+            <Typography color="text.secondary">Chatlər</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>{q.data?.conversations ?? "—"}</Typography>
+          </CardContent></Card>
+        </Grid>
+      </Grid>
+
+      <Card>
+        <CardContent>
+          <Typography variant="h6" sx={{ fontWeight: 900 }}>Moderasiya</Typography>
+          <Typography color="text.secondary">
+            İstifadəçiləri blokla (səbəb ilə), kateqoriya CRUD, chat yazışmalarına nəzarət.
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+}
