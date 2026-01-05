@@ -1,10 +1,26 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import type { Conversation } from "../types";
 import { API_URL } from "../config";
 import { Alert, Box, Card, CardContent, Grid, Typography, Chip, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+
+function absUrl(maybeRelative?: string | null) {
+  if (!maybeRelative) return null;
+  if (maybeRelative.startsWith("http")) return maybeRelative;
+  return `${API_URL}${maybeRelative}`;
+}
+
+function previewLastMessage(c: any) {
+  const m = c.messages?.[0];
+  if (!m) return null;
+  const t = m.type || "TEXT";
+  if (t === "TEXT") return m.text || "";
+  if (t === "IMAGE") return "📷 Şəkil";
+  if (t === "AUDIO") return "🎤 Səs mesajı";
+  if (t === "SYSTEM") return m.text || "";
+  return null;
+}
 
 async function getConversations() {
   const r = await api.get<any[]>("/admin/conversations");
@@ -22,13 +38,8 @@ export function ConversationsPage() {
       <Grid container spacing={2}>
         {(q.data || []).map((c: any) => {
           const reqTitle = c.acceptedRequest?.request?.title;
-          const img = c.acceptedRequest?.request?.imageUrl
-            ? c.acceptedRequest.request.imageUrl.startsWith("http")
-              ? c.acceptedRequest.request.imageUrl
-              : `${API_URL}${c.acceptedRequest.request.imageUrl}`
-            : null;
-
-          const lastMsg = c.messages?.[0]?.text;
+          const img = absUrl(c.acceptedRequest?.request?.imageUrl || null);
+          const lastMsg = previewLastMessage(c);
 
           return (
             <Grid item xs={12} md={6} lg={4} key={c.id}>

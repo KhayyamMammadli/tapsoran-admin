@@ -1,6 +1,7 @@
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
+import { API_URL } from "../config";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -17,6 +18,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+
+function absUrl(maybeRelative?: string | null) {
+  if (!maybeRelative) return null;
+  if (maybeRelative.startsWith("http")) return maybeRelative;
+  return `${API_URL}${maybeRelative}`;
+}
 
 async function getConv(id: string) {
   const r = await api.get(`/admin/conversations/${id}/messages`);
@@ -108,17 +115,46 @@ export function ConversationDetailPage() {
           </Typography>
 
           <Stack gap={1}>
-            {(conv.messages || []).map((m: any) => (
-              <Box key={m.id} sx={{ p: 1.2, border: "1px solid #E5E7EB", borderRadius: 2 }}>
-                <Typography sx={{ fontWeight: 800 }}>
-                  {m.sender?.fullName || m.senderId}
-                </Typography>
-                <Typography>{m.text}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {new Date(m.createdAt).toLocaleString()}
-                </Typography>
-              </Box>
-            ))}
+            {(conv.messages || []).map((m: any) => {
+              const t = m.type || "TEXT";
+              const media = absUrl(m.mediaUrl || null);
+
+              return (
+                <Box key={m.id} sx={{ p: 1.2, border: "1px solid #E5E7EB", borderRadius: 2 }}>
+                  <Typography sx={{ fontWeight: 800 }}>{m.sender?.fullName || m.senderId}</Typography>
+
+                  {t === "TEXT" || t === "SYSTEM" ? <Typography>{m.text || ""}</Typography> : null}
+
+                  {t === "IMAGE" ? (
+                    <Stack gap={1} sx={{ mt: 0.5 }}>
+                      {m.text ? <Typography>{m.text}</Typography> : null}
+                      {media ? (
+                        <a href={media} target="_blank" rel="noreferrer">
+                          <img src={media} alt="image" style={{ maxWidth: 280, borderRadius: 8 }} />
+                        </a>
+                      ) : (
+                        <Typography color="text.secondary">(image missing)</Typography>
+                      )}
+                    </Stack>
+                  ) : null}
+
+                  {t === "AUDIO" ? (
+                    <Stack gap={1} sx={{ mt: 0.5 }}>
+                      {m.text ? <Typography>{m.text}</Typography> : null}
+                      {media ? (
+                        <audio controls src={media} />
+                      ) : (
+                        <Typography color="text.secondary">(audio missing)</Typography>
+                      )}
+                    </Stack>
+                  ) : null}
+
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(m.createdAt).toLocaleString()}
+                  </Typography>
+                </Box>
+              );
+            })}
             {!conv.messages?.length ? <Typography color="text.secondary">Mesaj yoxdur</Typography> : null}
           </Stack>
         </CardContent>

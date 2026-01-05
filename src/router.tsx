@@ -10,6 +10,7 @@ import { ConversationsPage } from "./views/ConversationsPage";
 import { ConversationDetailPage } from "./views/ConversationDetailPage";
 import { SettingsPage } from "./views/SettingsPage";
 import { UsersPage } from "./views/UsersPage";
+import { NotificationsPage } from "./views/NotificationsPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: "conversations", element: <ConversationsPage /> },
       { path: "conversations/:id", element: <ConversationDetailPage /> },
       { path: "users", element: <UsersPage /> },
+      { path: "notifications", element: <NotificationsPage /> },
       { path: "settings", element: <SettingsPage /> },
     ],
   },
