@@ -11,6 +11,8 @@ import { ConversationDetailPage } from "./views/ConversationDetailPage";
 import { SettingsPage } from "./views/SettingsPage";
 import { UsersPage } from "./views/UsersPage";
 import { NotificationsPage } from "./views/NotificationsPage";
+import { RiskUsersPage } from "./views/RiskUsersPage";
+import { ReportsPage } from "./views/ReportsPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
@@ -34,6 +36,8 @@ export const router = createBrowserRouter([
       { path: "conversations", element: <ConversationsPage /> },
       { path: "conversations/:id", element: <ConversationDetailPage /> },
       { path: "users", element: <UsersPage /> },
+      { path: "safety/risk-users", element: <RiskUsersPage /> },
+      { path: "safety/reports", element: <ReportsPage /> },
       { path: "notifications", element: <NotificationsPage /> },
       { path: "settings", element: <SettingsPage /> },
     ],

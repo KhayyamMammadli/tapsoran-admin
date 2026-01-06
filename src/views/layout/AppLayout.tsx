@@ -22,6 +22,8 @@ import PeopleIcon from "@mui/icons-material/People";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import ChatIcon from "@mui/icons-material/Chat";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import ReportIcon from "@mui/icons-material/Report";
+import ShieldIcon from "@mui/icons-material/Shield";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Badge } from "@mui/material";
@@ -37,6 +39,8 @@ const navItemsBase = [
   { label: "İstifadəçilər", path: "/users", icon: <PeopleIcon /> },
   { label: "Sorğular (Feed)", path: "/feed", icon: <ListAltIcon /> },
   { label: "Chatlər", path: "/conversations", icon: <ChatIcon /> },
+  { label: "Təhlükəsizlik (Risk)", path: "/safety/risk-users", icon: <ShieldIcon /> },
+  { label: "Şikayətlər", path: "/safety/reports", icon: <ReportIcon /> },
   { label: "Bildirişlər", path: "/notifications", icon: <NotificationsIcon /> },
   { label: "Ayarlar", path: "/settings", icon: <SettingsIcon /> },
 ];
@@ -55,7 +59,7 @@ export function AppLayout() {
     try {
       const { data } = await api.get<NotificationRow[]>("/notifications");
       const rows = Array.isArray(data) ? data : [];
-      const unread = rows.filter((n) => n.type === "ADMIN_VULGAR" && !n.readAt).length;
+      const unread = rows.filter((n) => (n.type === "ADMIN_VULGAR" || n.type === "ADMIN_SAFETY" || n.type === "ADMIN_REPORT") && !n.readAt).length;
       setUnreadAdminCount(unread);
     } catch {
       // ignore
