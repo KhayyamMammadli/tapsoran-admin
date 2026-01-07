@@ -2,6 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { Alert, Box, Card, CardContent, Grid, Typography } from "@mui/material";
+import { useAuth } from "../state/AuthContext";
 
 async function getStats() {
   const r = await api.get<{ users: number; categories: number; requests: number; conversations: number }>("/admin/stats");
@@ -9,7 +10,8 @@ async function getStats() {
 }
 
 export function DashboardPage() {
-  const q = useQuery({ queryKey: ["admin-stats"], queryFn: getStats });
+  const { token } = useAuth();
+  const q = useQuery({ queryKey: ["admin-stats"], queryFn: getStats, enabled: !!token });
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>

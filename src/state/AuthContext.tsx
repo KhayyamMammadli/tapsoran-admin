@@ -41,6 +41,9 @@ setToken(res.data.token);
 setUser(res.data.user);
 localStorage.setItem(LS_TOKEN, res.data.token);
 localStorage.setItem(LS_USER, JSON.stringify(res.data.user));
+
+// Set header immediately to avoid the first request after login returning 401
+api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
     } finally {
       setLoading(false);
     }

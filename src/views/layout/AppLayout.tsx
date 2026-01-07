@@ -26,10 +26,13 @@ import ReportIcon from "@mui/icons-material/Report";
 import ShieldIcon from "@mui/icons-material/Shield";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import { Badge } from "@mui/material";
 import { useAuth } from "../../state/AuthContext";
 import { api } from "../../lib/api";
 import type { NotificationRow } from "../../types";
+import { isSoundEnabled, playSound, primeSound, setSoundEnabled } from "../../lib/notifySound";
 
 const drawerWidth = 280;
 
@@ -47,27 +50,35 @@ const navItemsBase = [
 ];
 
 export function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const loc = useLocation();
   const nav = useNavigate();
   const isSm = useMediaQuery("(max-width: 900px)");
   const [open, setOpen] = React.useState(!isSm);
   const [unreadAdminCount, setUnreadAdminCount] = React.useState(0);
+  const [soundEnabled, setSoundEnabledState] = React.useState(() => isSoundEnabled());
 
   React.useEffect(() => setOpen(!isSm), [isSm]);
 
   const refreshUnread = React.useCallback(async () => {
+    if (!token) return;
     try {
       const { data } = await api.get<NotificationRow[]>("/notifications");
       const rows = Array.isArray(data) ? data : [];
       const unread = rows.filter((n) => (n.type === "ADMIN_VULGAR" || n.type === "ADMIN_SAFETY" || n.type === "ADMIN_REPORT") && !n.readAt).length;
-      setUnreadAdminCount(unread);
+      setUnreadAdminCount((prev) => {
+        if (unread > prev && soundEnabled) {
+          playSound();
+        }
+        return unread;
+      });
     } catch {
       // ignore
     }
-  }, []);
+  }, [token, soundEnabled]);
 
   React.useEffect(() => {
+    if (!token) return;
     refreshUnread();
     const t = setInterval(refreshUnread, 20000);
     return () => clearInterval(t);
@@ -148,6 +159,18 @@ export function AppLayout() {
             {navItemsBase.find((x) => x.path === loc.pathname)?.label || "Dashboard"}
           </Typography>
           <Box sx={{ flex: 1 }} />
+          <IconButton
+            title={soundEnabled ? "Bildiriş səsi aktivdir" : "Bildiriş səsini aktiv et"}
+            onClick={async () => {
+              const next = !soundEnabled;
+              setSoundEnabledState(next);
+              setSoundEnabled(next);
+              if (next) await primeSound();
+            }}
+            sx={{ ml: 1 }}
+          >
+            {soundEnabled ? <VolumeUpIcon /> : <VolumeOffIcon />}
+          </IconButton>
         </Toolbar>
       </AppBar>
 

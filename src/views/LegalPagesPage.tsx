@@ -46,7 +46,7 @@ export function LegalPagesPage() {
   const save = React.useCallback(async () => {
     setSaving(true);
     try {
-      await api.put(`/admin/legal/${tab}`, { title, content });
+      await api.put(`/admin/legal/${tab}`, { title: title.trim(), content });
     } finally {
       setSaving(false);
     }
@@ -58,7 +58,11 @@ export function LegalPagesPage() {
         <Typography variant="h5" sx={{ fontWeight: 900 }}>
           Qaydalar & Məxfilik
         </Typography>
-        <Button variant="contained" onClick={() => void save()} disabled={saving || loading || content.trim().length < 10}>
+        <Button
+          variant="contained"
+          onClick={() => void save()}
+          disabled={saving || loading || content.trim().length < 10 || title.trim().length < 2}
+        >
           {saving ? "Yadda saxlanır…" : "Yadda saxla"}
         </Button>
       </Stack>
@@ -76,6 +80,7 @@ export function LegalPagesPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
+              helperText={title.trim().length < 2 ? "Başlıq ən azı 2 simvol olmalıdır" : ""}
             />
             <TextField
               label="Mətn (HTML də ola bilər)"
