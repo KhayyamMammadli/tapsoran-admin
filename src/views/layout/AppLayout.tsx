@@ -43,6 +43,7 @@ const navItemsBase = [
   { label: "Şikayətlər", path: "/safety/reports", icon: <ReportIcon /> },
   { label: "Bildirişlər", path: "/notifications", icon: <NotificationsIcon /> },
   { label: "Ayarlar", path: "/settings", icon: <SettingsIcon /> },
+  { label: "Qaydalar & Məxfilik", path: "/settings/legal", icon: <ReportIcon /> },
 ];
 
 export function AppLayout() {

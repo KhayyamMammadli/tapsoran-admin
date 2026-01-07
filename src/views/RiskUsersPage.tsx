@@ -44,6 +44,10 @@ export function RiskUsersPage() {
   const [hours, setHours] = React.useState(24);
   const [reason, setReason] = React.useState("Təhlükəsizlik yoxlaması");
 
+  const [blockOpen, setBlockOpen] = React.useState(false);
+  const [blockUser, setBlockUser] = React.useState<RiskUser | null>(null);
+  const [blockReason, setBlockReason] = React.useState("Təhlükəsizlik pozuntusu");
+
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -76,6 +80,19 @@ export function RiskUsersPage() {
 
   const unfreeze = React.useCallback(async (id: string) => {
     await api.patch(`/admin/users/${id}/unfreeze`, {});
+    void load();
+  }, [load]);
+
+  const block = React.useCallback(async () => {
+    if (!blockUser) return;
+    await api.patch(`/admin/users/${blockUser.id}/block`, { reason: blockReason });
+    setBlockOpen(false);
+    setBlockUser(null);
+    void load();
+  }, [blockUser, blockReason, load]);
+
+  const unblock = React.useCallback(async (id: string) => {
+    await api.patch(`/admin/users/${id}/unblock`, {});
     void load();
   }, [load]);
 
@@ -127,10 +144,27 @@ export function RiskUsersPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {r.blocked ? <Chip label="Blocked" size="small" color="error" /> : <Chip label="Active" size="small" color="success" />}
+                      {r.blocked ? <Chip label="Bloklanıb" size="small" color="error" /> : <Chip label="Aktiv" size="small" color="success" />}
                     </TableCell>
                     <TableCell align="right">
                       <Stack direction="row" gap={1} justifyContent="flex-end">
+                        {r.blocked ? (
+                          <Button size="small" color="success" variant="contained" onClick={() => void unblock(r.id)}>
+                            Aktiv et
+                          </Button>
+                        ) : (
+                          <Button
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                            onClick={() => {
+                              setBlockUser(r);
+                              setBlockOpen(true);
+                            }}
+                          >
+                            Blokla
+                          </Button>
+                        )}
                         <Button
                           size="small"
                           variant="outlined"
@@ -140,10 +174,10 @@ export function RiskUsersPage() {
                           }}
                           disabled={r.blocked}
                         >
-                          Freeze
+                          Chat dondur
                         </Button>
                         <Button size="small" variant="text" onClick={() => void unfreeze(r.id)} disabled={!frozen}>
-                          Unfreeze
+                          Aç
                         </Button>
                       </Stack>
                     </TableCell>
@@ -165,7 +199,31 @@ export function RiskUsersPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setFreezeOpen(false)}>Ləğv et</Button>
-          <Button variant="contained" onClick={() => void freeze()}>Freeze</Button>
+          <Button variant="contained" onClick={() => void freeze()}>Dondur</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={blockOpen} onClose={() => setBlockOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>İstifadəçini blokla</DialogTitle>
+        <DialogContent>
+          <Stack gap={2} sx={{ mt: 1 }}>
+            <Typography>
+              {blockUser ? `${blockUser.fullName} (${blockUser.email})` : ""}
+            </Typography>
+            <TextField
+              label="Səbəb"
+              value={blockReason}
+              onChange={(e) => setBlockReason(e.target.value)}
+              multiline
+              minRows={2}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBlockOpen(false)}>Ləğv et</Button>
+          <Button color="error" variant="contained" onClick={() => void block()}>
+            Blokla
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

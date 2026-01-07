@@ -13,6 +13,7 @@ import { UsersPage } from "./views/UsersPage";
 import { NotificationsPage } from "./views/NotificationsPage";
 import { RiskUsersPage } from "./views/RiskUsersPage";
 import { ReportsPage } from "./views/ReportsPage";
+import { LegalPagesPage } from "./views/LegalPagesPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { path: "safety/reports", element: <ReportsPage /> },
       { path: "notifications", element: <NotificationsPage /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "settings/legal", element: <LegalPagesPage /> },
     ],
   },
 ]);
