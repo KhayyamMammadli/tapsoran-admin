@@ -17,26 +17,26 @@ import {
 } from "@mui/material";
 import { api } from "../lib/api";
 
-type ReportRow = {
+type ComplaintRow = {
   id: string;
   status: "OPEN" | "RESOLVED" | "DISMISSED";
   reason: string;
+  details?: string | null;
   createdAt: string;
   reporter: { id: string; fullName: string; email: string };
-  reportedUser: { id: string; fullName: string; email: string; reportCount: number; blocked: boolean };
-  message: { id: string; text?: string | null; createdAt: string };
-  conversation: { id: string };
+  targetUser: { id: string; fullName: string; email: string; reportCount: number; blocked: boolean };
+  request?: { id: string; title: string } | null;
 };
 
 export function ReportsPage() {
   const [status, setStatus] = React.useState<string>("OPEN");
-  const [rows, setRows] = React.useState<ReportRow[]>([]);
+  const [rows, setRows] = React.useState<ComplaintRow[]>([]);
   const [loading, setLoading] = React.useState(false);
 
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get<ReportRow[]>(`/admin/reports?status=${encodeURIComponent(status)}`);
+      const { data } = await api.get<ComplaintRow[]>(`/admin/complaints?status=${encodeURIComponent(status)}`);
       setRows(Array.isArray(data) ? data : []);
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export function ReportsPage() {
   }, [load]);
 
   const setReportStatus = async (id: string, s: "OPEN" | "RESOLVED" | "DISMISSED") => {
-    await api.patch(`/admin/reports/${id}/status`, { status: s });
+    await api.patch(`/admin/complaints/${id}/status`, { status: s });
     await load();
   };
 
@@ -83,7 +83,8 @@ export function ReportsPage() {
                 <TableCell>Reporter</TableCell>
                 <TableCell>Target</TableCell>
                 <TableCell>Reason</TableCell>
-                <TableCell>Message</TableCell>
+                <TableCell>Details</TableCell>
+                <TableCell>Context</TableCell>
                 <TableCell>Created</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -99,17 +100,22 @@ export function ReportsPage() {
                     <Typography variant="body2" color="text.secondary">{r.reporter?.email || "-"}</Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography sx={{ fontWeight: 800 }}>{r.reportedUser?.fullName || "-"}</Typography>
-                    <Typography variant="body2" color="text.secondary">{r.reportedUser?.email || "-"}</Typography>
+                    <Typography sx={{ fontWeight: 800 }}>{r.targetUser?.fullName || "-"}</Typography>
+                    <Typography variant="body2" color="text.secondary">{r.targetUser?.email || "-"}</Typography>
                     <Stack direction="row" gap={1} sx={{ mt: 0.5 }}>
-                      <Chip label={`reports: ${r.reportedUser?.reportCount ?? 0}`} size="small" />
-                      {r.reportedUser?.blocked ? <Chip label="blocked" size="small" color="error" /> : null}
+                      <Chip label={`reports: ${r.targetUser?.reportCount ?? 0}`} size="small" />
+                      {r.targetUser?.blocked ? <Chip label="blocked" size="small" color="error" /> : null}
                     </Stack>
                   </TableCell>
                   <TableCell>{r.reason}</TableCell>
                   <TableCell>
-                    <Typography variant="body2" sx={{ maxWidth: 320 }} noWrap>
-                      {r.message?.text || "(media)"}
+                    <Typography variant="body2" sx={{ maxWidth: 280 }}>
+                      {r.details || "-"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" sx={{ maxWidth: 280 }} noWrap>
+                      {r.request?.title ? `Sorğu: ${r.request.title}` : "-"}
                     </Typography>
                   </TableCell>
                   <TableCell>{new Date(r.createdAt).toLocaleString()}</TableCell>

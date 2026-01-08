@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import type { RequestRow } from "../types";
 import { API_URL } from "../config";
@@ -11,6 +11,7 @@ import {
   Grid,
   Typography,
   Button,
+  Stack,
   Chip,
 } from "@mui/material";
 
@@ -20,10 +21,54 @@ async function getFeed() {
 }
 
 export function RequestsFeedPage() {
+  const qc = useQueryClient();
   const q = useQuery({ queryKey: ["feed"], queryFn: getFeed });
+
+  const delOne = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/requests/${id}`);
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+
+  const delAll = useMutation({
+    mutationFn: async () => {
+      await api.delete(`/admin/requests`);
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Stack direction={{ xs: "column", sm: "row" }} gap={1} alignItems={{ sm: "center" }} justifyContent="space-between">
+        <Typography variant="h5" sx={{ fontWeight: 900 }}>
+          Sorğular (Feed)
+        </Typography>
+        <Stack direction="row" gap={1} justifyContent="flex-end" flexWrap="wrap">
+          <Button
+            variant="outlined"
+            onClick={() => q.refetch()}
+            disabled={q.isFetching}
+          >
+            Yenilə
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => {
+              if (!confirm("Bütün sorğuları silmək istəyirsiniz?")) return;
+              delAll.mutate();
+            }}
+            disabled={delAll.isPending}
+          >
+            Hamısını sil
+          </Button>
+        </Stack>
+      </Stack>
       {q.error ? (
         <Alert severity="warning">
           Sorğuları çəkmək olmadı. Bu endpoint yalnız SUPER_ADMIN rolu ilə işləyir: <b>GET /requests/feed</b>
@@ -67,12 +112,22 @@ export function RequestsFeedPage() {
                   ) : null}
 
                   <Box sx={{ flex: 1 }} />
-                  <Button
-                    variant="outlined"
-                    onClick={() => navigator.clipboard.writeText(r.id)}
-                  >
-                    Request ID-ni kopyala
-                  </Button>
+                  <Stack direction="row" gap={1}>
+                    <Button variant="outlined" onClick={() => navigator.clipboard.writeText(r.id)}>
+                      ID kopyala
+                    </Button>
+                    <Button
+                      color="error"
+                      variant="outlined"
+                      onClick={() => {
+                        if (!confirm("Bu sorğunu silmək istəyirsiniz?")) return;
+                        delOne.mutate(r.id);
+                      }}
+                      disabled={delOne.isPending}
+                    >
+                      Sil
+                    </Button>
+                  </Stack>
                 </CardContent>
               </Card>
             </Grid>
