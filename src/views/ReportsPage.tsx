@@ -14,6 +14,11 @@ import {
   TableRow,
   Typography,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
 } from "@mui/material";
 import { api } from "../lib/api";
 
@@ -32,6 +37,11 @@ export function ReportsPage() {
   const [status, setStatus] = React.useState<string>("OPEN");
   const [rows, setRows] = React.useState<ComplaintRow[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [blockOpen, setBlockOpen] = React.useState(false);
+  const [blockRow, setBlockRow] = React.useState<ComplaintRow | null>(null);
+  const [blockReason, setBlockReason] = React.useState<string>("");
+  const [blockUntil, setBlockUntil] = React.useState<string>("");
+  const [blockBusy, setBlockBusy] = React.useState(false);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -50,6 +60,34 @@ export function ReportsPage() {
   const setReportStatus = async (id: string, s: "OPEN" | "RESOLVED" | "DISMISSED") => {
     await api.patch(`/admin/complaints/${id}/status`, { status: s });
     await load();
+  };
+
+  const openBlock = (row: ComplaintRow) => {
+    setBlockRow(row);
+    setBlockReason(`Şikayət: ${row.reason}`);
+    // default: 7 days
+    const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    setBlockUntil(local);
+    setBlockOpen(true);
+  };
+
+  const confirmBlock = async () => {
+    if (!blockRow) return;
+    setBlockBusy(true);
+    try {
+      const iso = blockUntil ? new Date(blockUntil).toISOString() : "";
+      await api.post(`/admin/complaints/${blockRow.id}/block`, {
+        reason: blockReason,
+        blockedUntil: iso,
+      });
+      setBlockOpen(false);
+      setBlockRow(null);
+      await load();
+    } finally {
+      setBlockBusy(false);
+    }
   };
 
   return (
@@ -121,6 +159,11 @@ export function ReportsPage() {
                   <TableCell>{new Date(r.createdAt).toLocaleString()}</TableCell>
                   <TableCell align="right">
                     <Stack direction="row" gap={1} justifyContent="flex-end">
+                      {!r.targetUser?.blocked ? (
+                        <Button size="small" color="error" variant="text" onClick={() => openBlock(r)}>
+                          Block
+                        </Button>
+                      ) : null}
                       <Button size="small" variant="text" onClick={() => void setReportStatus(r.id, "RESOLVED")}>Resolve</Button>
                       <Button size="small" variant="text" onClick={() => void setReportStatus(r.id, "DISMISSED")}>Dismiss</Button>
                     </Stack>
@@ -131,6 +174,37 @@ export function ReportsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={blockOpen} onClose={() => setBlockOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>İstifadəçini blokla</DialogTitle>
+        <DialogContent sx={{ display: "grid", gap: 2, pt: 2 }}>
+          <TextField
+            label="Blok səbəbi (admin qeydi)"
+            value={blockReason}
+            onChange={(e) => setBlockReason(e.target.value)}
+            fullWidth
+            multiline
+            minRows={3}
+          />
+          <TextField
+            label="Blok tarixi (bitmə)"
+            type="datetime-local"
+            value={blockUntil}
+            onChange={(e) => setBlockUntil(e.target.value)}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            helperText="İstəsəniz boş buraxın (müddətsiz blok)."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBlockOpen(false)} disabled={blockBusy}>
+            Cancel
+          </Button>
+          <Button onClick={confirmBlock} color="error" variant="contained" disabled={blockBusy || blockReason.trim().length < 3}>
+            Block &amp; notify
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
