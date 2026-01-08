@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Alert, Box, Button, Card, CardContent, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, CardContent, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useAuth } from "../state/AuthContext";
 import { API_URL } from "../config";
 
@@ -9,6 +11,7 @@ export function LoginPage() {
   const nav = useNavigate();
   const [email, setEmail] = React.useState("superadmin@tapsoran.az");
   const [password, setPassword] = React.useState("TapSoran@12345");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -39,7 +42,22 @@ export function LoginPage() {
           {err ? <Alert severity="error">{err}</Alert> : null}
 
           <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-          <TextField label="Şifrə" value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" />
+          <TextField
+            label="Şifrə"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword((v) => !v)} edge="end" aria-label="toggle password">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
           <Button variant="contained" size="large" onClick={submit} disabled={!email || !password || loading}>
             Daxil ol

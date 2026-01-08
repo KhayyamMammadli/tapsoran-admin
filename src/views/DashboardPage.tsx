@@ -5,7 +5,7 @@ import { Alert, Box, Card, CardContent, Grid, Typography } from "@mui/material";
 import { useAuth } from "../state/AuthContext";
 
 async function getStats() {
-  const r = await api.get<{ users: number; categories: number; requests: number; conversations: number }>("/admin/stats");
+  const r = await api.get<{ users: number; categories: number; requests: number }>("/admin/stats");
   return r.data;
 }
 
@@ -36,19 +36,14 @@ export function DashboardPage() {
             <Typography variant="h4" sx={{ fontWeight: 900 }}>{q.data?.requests ?? "—"}</Typography>
           </CardContent></Card>
         </Grid>
-        <Grid item xs={12} md={3}>
-          <Card><CardContent>
-            <Typography color="text.secondary">Chatlər</Typography>
-            <Typography variant="h4" sx={{ fontWeight: 900 }}>{q.data?.conversations ?? "—"}</Typography>
-          </CardContent></Card>
-        </Grid>
+        {/* Chat is temporarily hidden */}
       </Grid>
 
       <Card>
         <CardContent>
           <Typography variant="h6" sx={{ fontWeight: 900 }}>Moderasiya</Typography>
           <Typography color="text.secondary">
-            İstifadəçiləri blokla (səbəb ilə), kateqoriya CRUD, chat yazışmalarına nəzarət.
+            İstifadəçiləri blokla (səbəb ilə), kateqoriya CRUD, sorğulara nəzarət.
           </Typography>
         </CardContent>
       </Card>

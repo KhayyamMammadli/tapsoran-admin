@@ -33,7 +33,7 @@ function fmt(ts: string) {
 export function NotificationsPage() {
   const [rows, setRows] = React.useState<NotificationRow[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [tab, setTab] = React.useState<"ALL" | "ADMIN_VULGAR">("ADMIN_VULGAR");
+  const [tab, setTab] = React.useState<"ALL" | "ADMIN_VULGAR" | "ADMIN_SAFETY" | "ADMIN_REPORT" | "ADMIN_NEW_REQUEST" | "ADMIN_NEW_USER">("ALL");
   const [busy, setBusy] = React.useState(false);
 
   const load = React.useCallback(async () => {
@@ -52,6 +52,10 @@ export function NotificationsPage() {
 
   const filtered = React.useMemo(() => {
     if (tab === "ADMIN_VULGAR") return rows.filter((x) => x.type === "ADMIN_VULGAR");
+    if (tab === "ADMIN_SAFETY") return rows.filter((x) => x.type === "ADMIN_SAFETY");
+    if (tab === "ADMIN_REPORT") return rows.filter((x) => x.type === "ADMIN_REPORT");
+    if (tab === "ADMIN_NEW_REQUEST") return rows.filter((x) => x.type === "ADMIN_NEW_REQUEST");
+    if (tab === "ADMIN_NEW_USER") return rows.filter((x) => x.type === "ADMIN_NEW_USER");
     return rows;
   }, [rows, tab]);
 
@@ -60,8 +64,8 @@ export function NotificationsPage() {
   async function markAllRead() {
     setBusy(true);
     try {
-      if (tab === "ADMIN_VULGAR") {
-        await api.post("/notifications/read-type", { type: "ADMIN_VULGAR" });
+      if (tab !== "ALL") {
+        await api.post("/notifications/read-type", { type: tab });
       } else {
         await api.post("/notifications/read-all");
       }
@@ -107,9 +111,13 @@ export function NotificationsPage() {
       </Stack>
 
       <Box sx={{ mt: 2 }}>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-          <Tab value="ADMIN_VULGAR" label="Vulqar" />
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
           <Tab value="ALL" label="Hamısı" />
+          <Tab value="ADMIN_NEW_USER" label="Yeni istifadəçi" />
+          <Tab value="ADMIN_NEW_REQUEST" label="Sorğular" />
+          <Tab value="ADMIN_REPORT" label="Şikayətlər" />
+          <Tab value="ADMIN_SAFETY" label="Təhlükəsizlik" />
+          <Tab value="ADMIN_VULGAR" label="Vulqar" />
         </Tabs>
       </Box>
 

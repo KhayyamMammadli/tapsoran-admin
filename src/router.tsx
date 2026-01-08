@@ -6,8 +6,6 @@ import { AppLayout } from "./views/layout/AppLayout";
 import { DashboardPage } from "./views/DashboardPage";
 import { CategoriesPage } from "./views/CategoriesPage";
 import { RequestsFeedPage } from "./views/RequestsFeedPage";
-import { ConversationsPage } from "./views/ConversationsPage";
-import { ConversationDetailPage } from "./views/ConversationDetailPage";
 import { SettingsPage } from "./views/SettingsPage";
 import { UsersPage } from "./views/UsersPage";
 import { NotificationsPage } from "./views/NotificationsPage";
@@ -34,8 +32,6 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "categories", element: <CategoriesPage /> },
       { path: "feed", element: <RequestsFeedPage /> },
-      { path: "conversations", element: <ConversationsPage /> },
-      { path: "conversations/:id", element: <ConversationDetailPage /> },
       { path: "users", element: <UsersPage /> },
       { path: "safety/risk-users", element: <RiskUsersPage /> },
       { path: "safety/reports", element: <ReportsPage /> },

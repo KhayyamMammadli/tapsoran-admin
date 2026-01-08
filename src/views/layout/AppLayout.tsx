@@ -20,7 +20,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import CategoryIcon from "@mui/icons-material/Category";
 import PeopleIcon from "@mui/icons-material/People";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import ChatIcon from "@mui/icons-material/Chat";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ReportIcon from "@mui/icons-material/Report";
 import ShieldIcon from "@mui/icons-material/Shield";
@@ -41,7 +40,7 @@ const navItemsBase = [
   { label: "Kateqoriyalar", path: "/categories", icon: <CategoryIcon /> },
   { label: "İstifadəçilər", path: "/users", icon: <PeopleIcon /> },
   { label: "Sorğular (Feed)", path: "/feed", icon: <ListAltIcon /> },
-  { label: "Chatlər", path: "/conversations", icon: <ChatIcon /> },
+  // Chat is temporarily hidden
   { label: "Təhlükəsizlik (Risk)", path: "/safety/risk-users", icon: <ShieldIcon /> },
   { label: "Şikayətlər", path: "/safety/reports", icon: <ReportIcon /> },
   { label: "Bildirişlər", path: "/notifications", icon: <NotificationsIcon /> },
