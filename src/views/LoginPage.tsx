@@ -9,8 +9,8 @@ import { API_URL } from "../config";
 export function LoginPage() {
   const { token, login, loading } = useAuth();
   const nav = useNavigate();
-  const [email, setEmail] = React.useState("superadmin@tapsoran.az");
-  const [password, setPassword] = React.useState("TapSoran@12345");
+  const [email, setEmail] = React.useState("admin@tapsoran.az");
+  const [password, setPassword] = React.useState("Admin12345!");
   const [showPassword, setShowPassword] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
 
