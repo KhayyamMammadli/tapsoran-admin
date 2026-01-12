@@ -89,11 +89,7 @@ export function AppLayout() {
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Box sx={{ p: 2.2 }}>
         <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: "-0.5px" }}>
-<<<<<<< HEAD
           TapTəklif Admin
-=======
-          TapSoran Admin
->>>>>>> 7390a57cce0a9e1196ffe6cda9cc86ceee42deac
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Axtar • Sorğu ver • Tap

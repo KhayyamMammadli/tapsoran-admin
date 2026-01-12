@@ -64,13 +64,13 @@ export function LoginPage() {
           </Button>
 
           <Box sx={{ mt: 1, pt: 2, borderTop: "1px solid #E5E7EB" }}>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
-              Server: <b>http://localhost:4000</b>
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
-              Super Admin: <b>superadmin@tapteklif.az</b> • Şifrə: <b>TapTeklif@12345</b>
-            </Typography>
-          </Box>
+  <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+    Server: <b>http://localhost:4000</b>
+  </Typography>
+  <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+    Super Admin: <b>superadmin@tapteklif.az</b> • Şifrə: <b>TapTeklif@12345</b>
+  </Typography>
+</Box>
         </CardContent>
       </Card>
     </Box>
